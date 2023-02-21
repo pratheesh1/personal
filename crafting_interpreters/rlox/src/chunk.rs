@@ -1,33 +1,6 @@
-use std::{fmt, vec::Vec};
+use std::vec::Vec;
 
-use crate::value::Value;
-
-#[derive(Debug)]
-pub enum OpCode {
-    OpConstant(Value),
-    OpReturn,
-}
-
-impl OpCode {
-    pub fn code(&self) -> u8 {
-        match self {
-            OpCode::OpConstant(_) => return 0,
-            OpCode::OpReturn => return 1,
-        }
-    }
-}
-
-impl fmt::Display for OpCode {
-    fn fmt(&self, output: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            OpCode::OpConstant(value) => {
-                let op_const = format!("{:<16} {} '{:2}' ", "OP_CONSTANT", self.code(), value);
-                write!(output, "{}", op_const.as_str())
-            }
-            OpCode::OpReturn => write!(output, "OP_RETURN"),
-        }
-    }
-}
+use crate::op_code::OpCode;
 
 #[derive(Debug)]
 pub struct Chunk {
@@ -43,6 +16,7 @@ impl Chunk {
         if let Some(code) = code {
             chunk.push(code);
 
+            // add line number only if there is Some(code)
             if let Some(line_num) = line_num {
                 line.push(line_num);
             }
@@ -56,15 +30,13 @@ impl Chunk {
         self.line.push(line);
     }
 
-    pub fn disassemble(&self, name: &str)
-    where
-        OpCode: std::fmt::Display,
-    {
+    pub fn disassemble(&self, name: &str) {
         println!("== {} ==", name);
 
         let mut line_num: Option<&u32>;
         for (offset, instruction) in self.code.iter().enumerate() {
             if offset > 0 && (self.line.get(offset) == self.line.get(offset - 1)) {
+                // do not print line num if previous line num same as last OpCode
                 line_num = None;
             } else {
                 line_num = self.line.get(offset);
