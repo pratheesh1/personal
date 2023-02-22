@@ -1,10 +1,6 @@
 use proc_macro::TokenStream;
 use quote::quote;
 
-// op as input operator
-// b = self.pop();
-// a = self.pop();
-// self.push(a op b);
 #[proc_macro]
 pub fn binary_op(input: TokenStream) -> TokenStream {
     let op = input.to_string();
