@@ -49,9 +49,7 @@ impl VM {
             self.ip += 1;
 
             match self.chunk.as_ref().unwrap().code.get(self.ip - 1).unwrap() {
-                OpCode::Constant(value) => {
-                    self.push(*value);
-                }
+                OpCode::Constant(value) => self.push(*value),
                 OpCode::Add => self.binary_op(|a, b| a + b),
                 OpCode::Subtract => self.binary_op(|a, b| a - b),
                 OpCode::Multiply => self.binary_op(|a, b| a * b),
