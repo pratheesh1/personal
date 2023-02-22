@@ -1,3 +1,5 @@
+use r#macro::binary_op;
+
 use crate::{
     chunk::Chunk,
     op_code::{OpCode, Value},
@@ -51,6 +53,18 @@ impl VM {
             match self.chunk.as_ref().unwrap().code.get(self.ip - 1).unwrap() {
                 OpCode::Constant(value) => {
                     self.push(*value);
+                }
+                OpCode::Add => {
+                    binary_op!(+);
+                }
+                OpCode::Subtract => {
+                    binary_op!(-);
+                }
+                OpCode::Multiply => {
+                    binary_op!(*);
+                }
+                OpCode::Divide => {
+                    binary_op!(/);
                 }
                 OpCode::Negate => {
                     let value = self.pop();
