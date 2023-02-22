@@ -1,5 +1,3 @@
-use r#macro::binary_op;
-
 use crate::{
     chunk::Chunk,
     op_code::{OpCode, Value},
@@ -54,18 +52,10 @@ impl VM {
                 OpCode::Constant(value) => {
                     self.push(*value);
                 }
-                OpCode::Add => {
-                    binary_op!(+);
-                }
-                OpCode::Subtract => {
-                    binary_op!(-);
-                }
-                OpCode::Multiply => {
-                    binary_op!(*);
-                }
-                OpCode::Divide => {
-                    binary_op!(/);
-                }
+                OpCode::Add => self.binary_op(|a, b| a + b),
+                OpCode::Subtract => self.binary_op(|a, b| a - b),
+                OpCode::Multiply => self.binary_op(|a, b| a * b),
+                OpCode::Divide => self.binary_op(|a, b| a / b),
                 OpCode::Negate => {
                     let value = self.pop();
                     self.push(-value);
@@ -76,6 +66,12 @@ impl VM {
                 }
             }
         }
+    }
+
+    fn binary_op(&mut self, op: fn(Value, Value) -> Value) {
+        let b = self.pop();
+        let a = self.pop();
+        self.push(op(a, b));
     }
 }
 
