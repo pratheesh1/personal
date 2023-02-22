@@ -1,30 +1,25 @@
 use std::fmt;
 
-use crate::value::Value;
+pub type Value = f64;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum OpCode {
-    OpConstant(Value),
-    OpReturn,
-}
-
-impl OpCode {
-    fn code(&self) -> u8 {
-        match self {
-            OpCode::OpConstant(_) => 0,
-            OpCode::OpReturn => 1,
-        }
-    }
+    Constant(Value),
+    Negate,
+    Return,
 }
 
 impl fmt::Display for OpCode {
-    fn fmt(&self, output: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            OpCode::OpConstant(value) => {
-                let op_const = format!("{:<16} {} '{:2}' ", "OP_CONSTANT", self.code(), value);
-                write!(output, "{}", op_const.as_str())
-            }
-            OpCode::OpReturn => write!(output, "OP_RETURN"),
+            OpCode::Constant(value) => format_op_str(f, "OP_CONSTANT", value),
+            OpCode::Negate => write!(f, "OP_NEGATE"),
+            OpCode::Return => write!(f, "OP_RETURN"),
         }
     }
+}
+
+fn format_op_str(f: &mut fmt::Formatter<'_>, name: &str, value: &f64) -> fmt::Result {
+    let op_const = format!("{:<16} '{}'", name, value);
+    write!(f, "{}", op_const.as_str())
 }
