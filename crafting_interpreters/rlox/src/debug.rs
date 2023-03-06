@@ -15,16 +15,14 @@ pub fn disassemble(chunk: &Chunk, name: Option<&str>) {
 #[allow(dead_code)]
 #[cfg(debug_assertions)]
 pub fn disassemble_instruction(chunk: &Chunk, offset: usize) {
-    print!("{:0width$} ", offset, width = 4);
-
-    if offset > 0 && (chunk.line.get(offset) == chunk.line.get(offset - 1)) {
-        print!("   | ");
+    let curr_line = chunk.line.get(offset);
+    let info_str = if offset == 0 || (curr_line != chunk.line.get(offset - 1)) {
+        format!("{:0w$} {:0w$}", offset, curr_line.unwrap(), w = 4)
     } else {
-        print!("{:0width$} ", chunk.line.get(offset).unwrap(), width = 4);
-    }
-    let instruction = chunk.code.get(offset).unwrap();
+        format!("{:0w$}    |", offset, w = 4)
+    };
 
-    // not printing offsets of constants since using Enum(value) feature of rust
-    // instead of separate vec to store values associated with OpCode
-    println!("{}", instruction);
+    // no offsets for constants - using Enum(value) feature of rust
+    let instruction = chunk.code.get(offset).unwrap();
+    println!("{} {}", info_str.as_str(), instruction);
 }

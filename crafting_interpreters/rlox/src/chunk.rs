@@ -9,12 +9,12 @@ pub struct Chunk {
 }
 
 impl Chunk {
-    pub fn new(code: Option<OpCode>, line_num: Option<u32>) -> Self {
-        let mut chunk = vec![];
+    pub fn new(op_code: Option<OpCode>, line_num: Option<u32>) -> Self {
+        let mut code = vec![];
         let mut line = vec![];
 
-        if let Some(code) = code {
-            chunk.push(code);
+        if let Some(op_code) = op_code {
+            code.push(op_code);
 
             // add line number only if there is Some(code)
             if let Some(line_num) = line_num {
@@ -22,11 +22,11 @@ impl Chunk {
             }
         }
 
-        Chunk { code: chunk, line }
+        Chunk { code, line }
     }
 
-    pub fn write(&mut self, byte: OpCode, line: u32) {
-        self.code.push(byte);
+    pub fn write(&mut self, op_code: OpCode, line: u32) {
+        self.code.push(op_code);
         self.line.push(line);
     }
 }
