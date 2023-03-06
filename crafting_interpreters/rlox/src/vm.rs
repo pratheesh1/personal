@@ -5,7 +5,7 @@ use crate::{
     op_code::{OpCode, Value},
 };
 
-const MAX_SIZE: usize = 256;
+pub const MAX_STACK_SIZE: usize = 256;
 
 #[derive(Debug)]
 pub enum InterpretErr {
@@ -48,7 +48,7 @@ impl VM {
     }
 
     pub fn push(&mut self, value: Value) -> Result<(), InterpretErr> {
-        if self.stack.len() >= MAX_SIZE {
+        if self.stack.len() >= MAX_STACK_SIZE {
             return Err(InterpretErr::Compile(
                 "Stack overflow. Maximum stack size exceeded",
             ));
@@ -66,7 +66,7 @@ impl VM {
 
     pub fn run(&mut self) -> Result<(), InterpretErr> {
         for ip in 0..self.chunk.code.len() {
-            debug(self, ip);
+            debug::debug(self, ip);
 
             let op_code = self.chunk.code.get(ip);
             match op_code.ok_or(InterpretErr::Compile("Unknown error"))? {
@@ -98,17 +98,20 @@ impl VM {
     }
 }
 
-#[cfg(debug_assertions)]
-fn debug(vm: &VM, offset: usize) {
-    use crate::debug;
+mod debug {
+    #[cfg(debug_assertions)]
+    use crate::VM;
+    pub fn debug(vm: &VM, offset: usize) {
+        use crate::debug;
 
-    let stack_str = vm
-        .stack
-        .iter()
-        .map(|x| format!("[ {} ]", x))
-        .collect::<Vec<String>>()
-        .join("");
-    println!("{} {}", " ".repeat(10), stack_str);
+        let stack_str = vm
+            .stack
+            .iter()
+            .map(|x| format!("[ {} ]", x))
+            .collect::<Vec<String>>()
+            .join("");
+        println!("{} {}", " ".repeat(10), stack_str);
 
-    debug::disassemble_instruction(&vm.chunk, offset);
+        debug::disassemble_instruction(&vm.chunk, offset);
+    }
 }
