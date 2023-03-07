@@ -1,3 +1,4 @@
+#[cfg(debug_assertions)]
 use std::fmt;
 
 pub type Value = f64;
@@ -13,6 +14,7 @@ pub enum OpCode {
     Return,
 }
 
+#[cfg(debug_assertions)]
 impl fmt::Display for OpCode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {

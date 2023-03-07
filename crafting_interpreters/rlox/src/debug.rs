@@ -1,3 +1,4 @@
+#[cfg(debug_assertions)]
 use crate::chunk::Chunk;
 
 #[allow(dead_code)]
