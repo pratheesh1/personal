@@ -1,43 +1,15 @@
 mod chunk;
 mod debug;
 mod op_code;
+mod source;
 mod vm;
 
-use chunk::Chunk;
-use op_code::OpCode;
-use vm::VM;
-
 fn main() {
-    let mut vm = VM::default();
+    let args = std::env::args().collect::<Vec<String>>();
 
-    let mut chunk = Chunk::new(None, None);
-    chunk.write(OpCode::Constant(1.2), 123);
-    chunk.write(OpCode::Constant(3.4), 123);
-    chunk.write(OpCode::Add, 123);
-    chunk.write(OpCode::Return, 125);
-    chunk.write(OpCode::Negate, 123);
-    chunk.write(OpCode::Constant(2.0), 124);
-    match vm.interpret(chunk) {
-        Ok(_) => {}
-        Err(e) => println!("{}", e),
-    }
-
-    chunk = Chunk::new(None, None);
-    chunk.write(OpCode::Return, 125);
-    match vm.interpret(chunk) {
-        Ok(_) => {}
-        Err(e) => println!("{}", e),
-    }
-
-    chunk = Chunk::new(None, None);
-    chunk.write(OpCode::Constant(3.0), 124);
-    chunk.write(OpCode::Multiply, 124);
-    chunk.write(OpCode::Constant(6.0), 125);
-    chunk.write(OpCode::Subtract, 125);
-    chunk.write(OpCode::Return, 125);
-    chunk.write(OpCode::Subtract, 125);
-    match vm.interpret(chunk) {
-        Ok(_) => {}
-        Err(e) => println!("{}", e),
+    match args.len() {
+        1 => source::repl(),
+        2 => source::file(&args[1]),
+        _ => println!("{}", format!("Usage: {} [path]", args[0]).to_string()),
     }
 }
