@@ -23,7 +23,7 @@ pub fn disassemble_instruction(chunk: &Chunk, offset: usize) {
         format!("{:0w$}    |", offset, w = 4)
     };
 
-    // no offsets for constants - using Enum(value) feature of rust
+    // No offsets for constants - using Enum(value) feature of rust
     let instruction = chunk.code.get(offset).unwrap();
     println!("{} {}", info_str.as_str(), instruction);
 }

@@ -16,13 +16,13 @@ impl Chunk {
         if let Some(op_code) = op_code {
             code.push(op_code);
 
-            // add line number only if there is Some(code)
+            // Add line number only if there is Some(code)
             if let Some(line_num) = line_num {
                 line.push(line_num);
             }
         }
 
-        Chunk { code, line }
+        Self { code, line }
     }
 
     pub fn write(&mut self, op_code: OpCode, line: u32) {

@@ -2,6 +2,7 @@ use std::fmt;
 
 use crate::{
     chunk::Chunk,
+    compiler::Compiler,
     op_code::{OpCode, Value},
 };
 
@@ -16,11 +17,13 @@ pub enum InterpretErr {
 impl fmt::Display for InterpretErr {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            InterpretErr::Compile(s) => write!(f, "Compile error: {}", s),
-            InterpretErr::Runtime(s) => write!(f, "Runtime error: {}", s),
+            Self::Compile(s) => write!(f, "Compile error: {}", s),
+            Self::Runtime(s) => write!(f, "Runtime error: {}", s),
         }
     }
 }
+
+#[derive(Debug)]
 
 pub struct VM {
     chunk: Chunk,
@@ -37,7 +40,7 @@ impl Default for VM {
 
 impl VM {
     pub fn new() -> Self {
-        VM {
+        Self {
             chunk: Chunk::new(None, None),
             ip: 0,
             stack: [0.0; MAX_STACK_SIZE],
@@ -45,10 +48,13 @@ impl VM {
         }
     }
 
-    pub fn interpret(&mut self, chunk: Chunk) -> Result<(), InterpretErr> {
-        self.chunk.code = chunk.code;
-        self.chunk.line = chunk.line;
-        self.run()
+    pub fn interpret(source: String) -> Result<(), InterpretErr> {
+        let mut compiler = Compiler::new(source);
+
+        // TODO: Implement the rest of the compiler
+        compiler.compile();
+
+        Ok(())
     }
 
     pub fn push(&mut self, value: Value) -> Result<(), InterpretErr> {

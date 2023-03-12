@@ -1,7 +1,10 @@
 mod chunk;
+mod compiler;
 mod debug;
 mod op_code;
+mod scanner;
 mod source;
+mod token;
 mod vm;
 
 fn main() {
@@ -11,7 +14,7 @@ fn main() {
         1 => source::repl(),
         2 => source::file(&args[1]),
         _ => {
-            println!("{}", format!("Usage: {} [path]", args[0]).to_string());
+            eprintln!("Usage: {} [path]", args[0]);
             std::process::exit(64);
         }
     }
