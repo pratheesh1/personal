@@ -10,6 +10,9 @@ fn main() {
     match args.len() {
         1 => source::repl(),
         2 => source::file(&args[1]),
-        _ => println!("{}", format!("Usage: {} [path]", args[0]).to_string()),
+        _ => {
+            println!("{}", format!("Usage: {} [path]", args[0]).to_string());
+            std::process::exit(64);
+        }
     }
 }
