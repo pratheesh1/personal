@@ -3,8 +3,6 @@ use std::io::{Read, Write};
 use crate::vm::VM;
 
 pub fn repl() {
-    let vm = VM::new();
-
     loop {
         print!("> ");
         std::io::stdout().flush().unwrap();
@@ -29,7 +27,7 @@ pub fn repl() {
             });
         }
 
-        VM::interpret(line);
+        VM::interpret(&line);
     }
 }
 

@@ -14,7 +14,7 @@ fn main() {
         1 => source::repl(),
         2 => source::file(&args[1]),
         _ => {
-            eprintln!("Usage: {} [path]", args[0]);
+            eprintln!("Usage: ./{} [path]", args[0]);
             std::process::exit(64);
         }
     }

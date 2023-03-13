@@ -1,11 +1,11 @@
 use crate::{scanner::Scanner, token::Token};
 
-pub struct Compiler {
-    source: Option<String>,
+pub struct Compiler<'a> {
+    source: Option<&'a String>,
 }
 
-impl Compiler {
-    pub fn new(source: String) -> Self {
+impl<'a, 'b: 'a> Compiler<'a> {
+    pub fn new(source: &'b String) -> Self {
         Self {
             source: Some(source),
         }

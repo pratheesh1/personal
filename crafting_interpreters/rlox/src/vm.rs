@@ -32,23 +32,8 @@ pub struct VM {
     stack_top: usize,
 }
 
-impl Default for VM {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl VM {
-    pub fn new() -> Self {
-        Self {
-            chunk: Chunk::new(None, None),
-            ip: 0,
-            stack: [0.0; MAX_STACK_SIZE],
-            stack_top: 0,
-        }
-    }
-
-    pub fn interpret(source: String) -> Result<(), InterpretErr> {
+    pub fn interpret(source: &String) -> Result<(), InterpretErr> {
         let mut compiler = Compiler::new(source);
 
         // TODO: Implement the rest of the compiler

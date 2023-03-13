@@ -3,15 +3,15 @@ use crate::{
     token::{Token, TokenType},
 };
 
-pub struct Scanner {
-    source: String,
+pub struct Scanner<'a> {
+    source: &'a String,
     start: usize,
     current: usize,
     line: usize,
 }
 
-impl Scanner {
-    pub fn new(source: String) -> Self {
+impl<'a, 'b: 'a> Scanner<'a> {
+    pub fn new(source: &'b String) -> Self {
         Self {
             source,
             start: 0,
