@@ -3,53 +3,76 @@
 #include "common.h"
 #include "compiler.h"
 #include "debug.h"
+#include "value.h"
 #include "vm.h"
 
-VM vm;
+// ---------- static declarations ----------
+static InterpretResult run(VM *vm);
+static void resetStack(VM *vm) { vm->stackTop = vm->stack; }
+// -----------------------------------------
 
-static void reset_stack() { vm.stack_top = vm.stack; }
+void initVM(VM *vm) { resetStack(vm); }
 
-void init_VM() { reset_stack(); }
+void freeVM(VM *vm) {}
 
-void free_VM() {}
+InterpretResult interpret(const char *source) {
+  Chunk chunk;
+  initChunk(&chunk);
 
-void push(Value value) {
-  *vm.stack_top = value;
-  vm.stack_top++;
+  if (!compile(source, &chunk)) {
+    freeChunk(&chunk);
+    return INTERPRET_COMPILE_ERROR;
+  }
+
+  VM vm;
+  initVM(&vm);
+  vm.chunk = &chunk;
+  vm.ip = vm.chunk->code;
+
+  InterpretResult result = run(&vm);
+
+  freeChunk(&chunk);
+  return result;
 }
 
-Value pop() {
-  vm.stack_top--;
-  return *vm.stack_top;
+void push(VM *vm, Value value) {
+  *vm->stackTop = value;
+  vm->stackTop++;
 }
 
-static InterpretResult run() {
-#define READ_BYTE() (*vm.ip++)
-#define READ_CONSTANT() (vm.chunk->constants.values[READ_BYTE()])
+Value pop(VM *vm) {
+  vm->stackTop--;
+  return *vm->stackTop;
+}
+
+// ---------- static definitions ----------
+static InterpretResult run(VM *vm) {
+#define READ_BYTE() (*vm->ip++)
+#define READ_CONSTANT() (vm->chunk->constants.values[READ_BYTE()])
 #define BINARY_OP(op)                                                          \
   do {                                                                         \
-    double b = pop();                                                          \
-    double a = pop();                                                          \
-    push(a op b);                                                              \
+    double b = pop(vm);                                                        \
+    double a = pop(vm);                                                        \
+    push(vm, a op b);                                                          \
   } while (false)
 
   for (;;) {
 #ifdef DEBUG_TRACE_EXECUTION
     printf("          ");
-    for (Value *slot = vm.stack; slot < vm.stack_top; slot++) {
+    for (Value *slot = vm->stack; slot < vm->stackTop; slot++) {
       printf("[ ");
-      print_value(*slot);
+      printValue(*slot);
       printf(" ]");
     }
     printf("\n");
-    disassemble_instruction(vm.chunk, (int)(vm.ip - vm.chunk->code));
-#endif
+    disassembleInstruction(vm->chunk, (int)(vm->ip - vm->chunk->code));
+#endif /* DEBUG_TRACE_EXECUTION */
 
     uint8_t instruction;
     switch (instruction = READ_BYTE()) {
     case OP_CONSTANT: {
       Value constant = READ_CONSTANT();
-      push(constant);
+      push(vm, constant);
       break;
     }
     case OP_ADD:
@@ -64,11 +87,12 @@ static InterpretResult run() {
     case OP_DIVIDE:
       BINARY_OP(/);
       break;
-    case OP_NEGATE:
-      push(-pop());
+    case OP_NEGATE: {
+      push(vm, -pop(vm));
       break;
+    }
     case OP_RETURN: {
-      print_value(pop());
+      printValue(pop(vm));
       printf("\n");
       return INTERPRET_OK;
     }
@@ -79,21 +103,4 @@ static InterpretResult run() {
 #undef READ_CONSTANT
 #undef BINARY_OP
 }
-
-InterpretResult interpret(const char *source) {
-  Chunk chunk;
-  init_chunk(&chunk);
-
-  if (!compile(source, &chunk)) {
-    free_chunk(&chunk);
-    return INTERPRET_COMPILE_ERROR;
-  }
-
-  vm.chunk = &chunk;
-  vm.ip = vm.chunk->code;
-
-  InterpretResult result = run();
-
-  free_chunk(&chunk);
-  return result;
-}
+// ----------------------------------------

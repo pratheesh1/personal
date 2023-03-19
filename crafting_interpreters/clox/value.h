@@ -11,9 +11,9 @@ typedef struct {
   Value *values;
 } ValueArray;
 
-void init_value_array(ValueArray *array);
-void write_value_array(ValueArray *array, Value value);
-void free_value_array(ValueArray *array);
-void print_value(Value value);
+void initValueArray(ValueArray *array);
+void writeValueArray(ValueArray *array, Value value);
+void freeValueArray(ValueArray *array);
+void printValue(Value value);
 
-#endif // clox_value_h
+#endif // !clox_value_h

@@ -3,11 +3,11 @@ CC = gcc
 CFLAGS = -Wall -g #-Werror
 
 # Define source files and object files
-SRC = chunk.c compiler.c debug.c main.c memory.c  scanner.c value.c vm.c
+SRC = $(wildcard *.c)
 OBJ = $(patsubst %.c,bin/%.o,$(SRC))
 
 # Define header files
-HDR = chunk.h common.h compiler.h debug.h memory.h  scanner.h value.h vm.h
+HDR = $(wildcard *.h)
 
 # Define executable file
 EXEC = bin/clox
@@ -26,3 +26,6 @@ bin/%.o: %.c $(HDR)
 
 clean:
 	rm -f bin/*
+
+run:
+	./$(EXEC)

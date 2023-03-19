@@ -7,29 +7,32 @@
 #include "debug.h"
 #include "vm.h"
 
+// ---------- static declarations ----------
 static void repl();
-static void run_file(const char *path);
-static char *read_file(const char *path);
+static void runFile(const char *path);
+static char *readFile(const char *path);
+// -----------------------------------------
 
 int main(int argc, char *argv[]) {
-  init_VM();
+  VM vm;
+  initVM(&vm);
 
   if (argc == 1) {
     repl();
   } else if (argc == 2) {
-    run_file(argv[1]);
+    runFile(argv[1]);
   } else {
     fprintf(stderr, "Usage: clox [path]\n");
     exit(64);
   }
 
-  free_VM();
+  freeVM(&vm);
   return 0;
 }
 
+// ---------- static definitions ----------
 static void repl() {
   char line[1024];
-
   for (;;) {
     printf("> ");
 
@@ -42,8 +45,8 @@ static void repl() {
   }
 }
 
-static void run_file(const char *path) {
-  char *source = read_file(path);
+static void runFile(const char *path) {
+  char *source = readFile(path);
   InterpretResult result = interpret(source);
   free(source);
 
@@ -53,7 +56,7 @@ static void run_file(const char *path) {
     exit(70);
 }
 
-static char *read_file(const char *path) {
+static char *readFile(const char *path) {
   FILE *file = fopen(path, "rb");
   if (file == NULL) {
     fprintf(stderr, "Could not open file \"%s\".\n", path);
@@ -61,23 +64,23 @@ static char *read_file(const char *path) {
   }
 
   fseek(file, 0L, SEEK_END);
-  size_t file_size = ftell(file);
+  size_t fileSize = ftell(file);
   rewind(file);
 
-  char *buffer = (char *)malloc(file_size + 1);
+  char *buffer = (char *)malloc(fileSize + 1);
   if (buffer == NULL) {
     fprintf(stderr, "Not enough memory to read \"%s\".\n", path);
     exit(74);
   }
-
-  size_t bytes_read = fread(buffer, sizeof(char), file_size, file);
-  if (bytes_read < file_size) {
+  size_t bytesRead = fread(buffer, sizeof(char), fileSize, file);
+  if (bytesRead < fileSize) {
     fprintf(stderr, "Could not read file \"%s\".\n", path);
     exit(74);
   }
 
-  buffer[bytes_read] = '\0';
+  buffer[bytesRead] = '\0';
 
   fclose(file);
   return buffer;
 }
+// ----------------------------------------
