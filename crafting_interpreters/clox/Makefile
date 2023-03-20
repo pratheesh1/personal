@@ -27,5 +27,8 @@ bin/%.o: %.c $(HDR)
 clean:
 	rm -f bin/*
 
+expand:
+	$(CC) $(CFLAGS) -E $(SRC) > $(EXEC).source.c
+
 run:
 	./$(EXEC)

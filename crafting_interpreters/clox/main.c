@@ -13,9 +13,8 @@ static void runFile(const char *path);
 static char *readFile(const char *path);
 // -----------------------------------------
 
-int main(int argc, char *argv[]) {
-  VM vm;
-  initVM(&vm);
+int main(int argc, const char *argv[]) {
+  initVM();
 
   if (argc == 1) {
     repl();
@@ -26,7 +25,8 @@ int main(int argc, char *argv[]) {
     exit(64);
   }
 
-  freeVM(&vm);
+  freeVM();
+
   return 0;
 }
 
@@ -72,6 +72,7 @@ static char *readFile(const char *path) {
     fprintf(stderr, "Not enough memory to read \"%s\".\n", path);
     exit(74);
   }
+
   size_t bytesRead = fread(buffer, sizeof(char), fileSize, file);
   if (bytesRead < fileSize) {
     fprintf(stderr, "Could not read file \"%s\".\n", path);
@@ -83,4 +84,4 @@ static char *readFile(const char *path) {
   fclose(file);
   return buffer;
 }
-// ----------------------------------------
+// ---------- static definitions ----------
