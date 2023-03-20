@@ -23,9 +23,13 @@ static void concatenate();
 void initVM() {
   resetStack();
   vm.objects = NULL;
+  initTable(&vm.strings);
 }
 
-void freeVM() { freeObjects(); }
+void freeVM() {
+  freeTable(&vm.strings);
+  freeObjects();
+}
 
 InterpretResult interpret(const char *source) {
   Chunk chunk;
