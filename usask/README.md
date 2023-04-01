@@ -24,7 +24,9 @@ python3 main.py example.csv 'Bachelor of Science Honours [B.Sc. (BMSC) Honours]'
 python3 main.py bmsc_honors.csv
 ```
 
-Header defaults to `Study Plan` if not provided. 3. Open `index.html` in a browser.
+Header defaults to `Study Plan` if not provided.
+
+3. Open `index.html` in a browser.
 
 ## Sample csv file
 
