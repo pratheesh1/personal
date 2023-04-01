@@ -17,3 +17,10 @@ Things I've done and currently doing for fun and to kill time. I procrastinate a
    | Started | Completed | Language | Status | Notes |
    | ------- | --------- | -------- | ------ | ----- |
    | 2023-Mar | - |Rust | 🚧 (in progress) | - |
+
+3. [USask Course Planner](https://github.com/pratheesh1/personal/tree/main/usask)
+
+   A course planner for University of Saskatchewan students (and possibly other schools)
+   | Started | Completed | Language | Status | Notes |
+   | ------- | --------- | -------- | ------ | ----- |
+   | 2023-Mar | 2023-Apr |Python | 🎉 Completed | - |
