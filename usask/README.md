@@ -47,7 +47,8 @@ Default values:
 
 - `Credits`: 3
 - `Prerequisites`: []
-- `required`: Y
-- `notes`: ''
+- `Required`: Y
+- `Notes`: ''
+- `Completed`: N
 
 Note: I did not use a virtal environment for this project. But used python 3.10.6 for development. So it is the recommended version. But it should work with python 3.6+.
