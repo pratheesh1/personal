@@ -13,7 +13,7 @@ pip install -r requirements.txt
 2.  Run `main.py` with the couse lists file as the first argument.
 
 ```bash
-python3 main.py <course_lists_file> [Program Name]
+python3 main.py <course_lists_file> [program_name]
 ```
 
 For example, both of the following are valid commands.
@@ -24,7 +24,7 @@ python3 main.py example.csv 'Bachelor of Science Honours [B.Sc. (BMSC) Honours]'
 python3 main.py bmsc_honors.csv
 ```
 
-Header defaults to `Study Plan` if not provided.
+`program_name` defaults to `Study Plan` if not provided.
 
 3. Open `index.html` in a browser.
 
