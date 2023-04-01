@@ -31,15 +31,15 @@ python3 main.py bmsc_honors.csv
 ## Sample csv file
 
 `bmsc_honors.csv`
-| Subject | Code | Name | Credits | Prerequisites | required | notes |
-| ------- | ---- | ------------------------------------------- | ------- | -------------------------- | -------- | ------------------------------------- |
-| HIL | 120 | Knowledge Mind and Existence | 3 | | Y | |
-| HIL | 121 | Introduction to World Philosophies | 3 | | Y | |
-| INDG | 107 | Introduction to Canadian Indigenous Studies | 3 | | Y | |
-| MATH | 110 | Calculus I | 3 | | Y | |
-| BIOL | 120 | The Nature of Life | 3 | | Y | |
-| BIOL | 121 | The Diversity of Life | 3 | | N | |
-| STAT | 246 | Introduction to Biostatistics | 3 | MATH 110,BIOL 120,BIOL 121 | Y | Permission of the Department required |
+| Subject | Code | Name | Credits | Prerequisites | Required | Notes | Complteted |
+| ------- | ---- | ------------------------------------------- | ------- | -------------------------- | -------- | ------------------------------------- | ---------- |
+| HIL | 120 | Knowledge Mind and Existence | | | Y | | |
+| HIL | 121 | Introduction to World Philosophies | 3 | | | | N |
+| INDG | 107 | Introduction to Canadian Indigenous Studies | 3 | | Y | | N|
+| MATH | 110 | Calculus I | | | | | |
+| BIOL | 120 | The Nature of Life | 3 | | Y | | |
+| BIOL | 121 | The Diversity of Life | 3 | | N | | |
+| STAT | 246 | Introduction to Biostatistics | | MATH 110,BIOL 120,BIOL 121 | Y | Permission of the Department required | Y |
 
 `Subject`, `Code`, `Name` are required fileds.
 

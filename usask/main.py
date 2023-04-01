@@ -6,7 +6,7 @@ from enum import IntEnum
 
 
 class Course:
-    def __init__(self: str, subject: str, code: str, name: str, credits: int = 3, prereqs: list[str] = [], required: bool = True, notes: str = None):
+    def __init__(self: str, subject: str, code: str, name: str, credits: int = 3, prereqs: list[str] = [], required: bool = True, notes: str = None, completed: bool = False):
         self.subject = subject
         self.code = code
         self.name = name
@@ -14,6 +14,7 @@ class Course:
         self.prereqs = prereqs
         self.required = required
         self.notes = notes
+        self.completed = completed
 
     def __repr__(self) -> str:
         return f'{self.subject} {self.code}.{self.credits}'
@@ -26,7 +27,8 @@ class Course:
                 f'Credits: {self.credits}\n'
                 f'Prereqs: {len(self.prereqs) > 0 and self.prereqs or "NA"}\n'
                 f'Required: {self.required}\n'
-                f'Notes: {self.notes or "NA" }')
+                f'Notes: {self.notes or "NA" }\n'
+                f'Completed: {self.completed}')
 
     def __hash__(self) -> int:
         return hash((self.subject, self.code))
@@ -90,6 +92,7 @@ class Fields(IntEnum):
     PREREQS = 4
     REQUIRED = 5
     NOTES = 6
+    COMPLETED = 7
 
 
 class CourseCode(IntEnum):
@@ -98,10 +101,15 @@ class CourseCode(IntEnum):
     CREDITS = 2
 
 
+legend = ["Required with prereqs",
+          "Required without prereqs", "Elective", "Completed"]
+
+
 class Legend(IntEnum):
     REQUIRED_WITH_PREREQS = 0
     REQUIRED_WITHOUT_PREREQS = 1
     ELECTIVE = 2
+    COMPLETED = 3
 
 
 def course_from_csv(row: list[str]) -> Course:
@@ -110,8 +118,8 @@ def course_from_csv(row: list[str]) -> Course:
     code = row[Fields.CODE]
     name = row[Fields.NAME]
 
-    if (subject == '' or code == '' or name == '' or row_len < 7):
-        print("Error: Invalid course entry: '{}'".format(row), file=sys.stderr)
+    if (subject == '' or code == '' or name == '' or row_len < len(Fields)):
+        print("Error: Invalid course entry: {}".format(row), file=sys.stderr)
         sys.exit(1)
 
     credits = int(row[Fields.CREDITS])
@@ -123,9 +131,10 @@ def course_from_csv(row: list[str]) -> Course:
 
     required = row[Fields.REQUIRED] == 'Y'
     notes = row[Fields.NOTES]
+    completed = row[Fields.COMPLETED] == 'Y'
 
     return Course(subject, code, name,
-                  credits, prereqs, required, notes)
+                  credits, prereqs, required, notes, completed)
 
 
 def course_gen(file: str) -> Course:
@@ -155,7 +164,7 @@ plan = Plan(courses)
 
 # ----------------------------------------------------------------------------------------------
 
-legend = ["Required with prereqs", "Required without prereqs", "Elective"]
+
 G = nx.Graph()
 net = Network(height='750px', bgcolor="white", font_color="black",
               directed=True, select_menu=True, filter_menu=True, neighborhood_highlight=True, cdn_resources='in_line')
@@ -166,13 +175,15 @@ net.heading = heading
 
 for i, course in enumerate(plan.courses):
     group: str
-    if course.required:
-        if len(course.prereqs) > 0:
-            group = legend[Legend.REQUIRED_WITH_PREREQS]
-        else:
-            group = legend[Legend.REQUIRED_WITHOUT_PREREQS]
+    if course.required and len(course.prereqs) > 0:
+        group = legend[Legend.REQUIRED_WITH_PREREQS]
+    elif course.required:
+        group = legend[Legend.REQUIRED_WITHOUT_PREREQS]
     else:
         group = legend[Legend.ELECTIVE]
+
+    if course.completed:
+        group = legend[Legend.COMPLETED]
 
     G.add_node(course.fmt, label=course.fmt,
                title=str(course), value=course.credits, group=group)
@@ -184,8 +195,8 @@ for i, course in enumerate(plan.courses):
 
 # Add Legend Nodes
 step = 30
-x_offset = 2200
-y_offset = -800
+x_offset = 2000
+y_offset = -100
 legend_nodes = [
     (
         G.number_of_nodes() + node,
