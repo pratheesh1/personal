@@ -6,12 +6,13 @@ from enum import IntEnum
 
 
 class Course:
-    def __init__(self: str, subject: str, code: str, name: str, credits: int = 3, prereqs: list[str] = [], required: bool = True, notes: str = None, completed: bool = False):
+    def __init__(self: str, subject: str, code: str, name: str, credits: int = 3, prereqs: list[str] = [], coreqs: list[str] = [], required: bool = True, notes: str = None, completed: bool = False):
         self.subject = subject
         self.code = code
         self.name = name
         self.credits = credits
         self.prereqs = prereqs
+        self.coreqs = coreqs
         self.required = required
         self.notes = notes
         self.completed = completed
@@ -26,6 +27,7 @@ class Course:
                 f'Name: {self.name}\n'
                 f'Credits: {self.credits}\n'
                 f'Prereqs: {len(self.prereqs) > 0 and self.prereqs or "NA"}\n'
+                f'Coreqs: {len(self.coreqs) > 0 and self.coreqs or "NA"}\n'
                 f'Required: {self.required}\n'
                 f'Notes: {self.notes or "NA" }\n'
                 f'Completed: {self.completed}')
@@ -46,40 +48,95 @@ class Course:
 
 class Plan:
     def __init__(self, courses: list[Course]):
-        self.__course_array: list[Course] = courses
-        self.__prereqs_array: list[list[Course]] = []
+        self.__has_errors = False
+        self.__errors: list[str] = []
+        self.__warnings: list[str] = []
+
+        self.__course: list[Course] = courses
+        self.__prereqs: list[list[Course]] = []
+        self.__coreqs: list[list[Course]] = []
 
         self.__coursemap: dict[tuple[str, str], Course] = {}
 
         self.__build_plan()
-        self.__build_pre_reqs()
+        self.__build_reqs()
+
+        self.__validate()
 
     def __repr__(self) -> str:
         return str(list(map(lambda x: x.__repr__(), self.__coursemap.values())))
 
     def __build_plan(self) -> None:
-        for course in self.__course_array:
+        for course in self.__course:
+            if self.__coursemap.get((course.subject, course.code)) is not None:
+                print("Error: Duplicate course '{}' found in study plan.".format(
+                    course.fmt), file=sys.stderr)
+                sys.exit(1)
             self.__coursemap[(course.subject, course.code)] = course
 
-    def __build_pre_reqs(self) -> None:
+    def __build_reqs(self) -> None:
         for course in self.__coursemap.values():
             course_prereqs: list[Course] = []
+            course_coreqs: list[Course] = []
+
             for prereq in course.prereqs:
                 if self.__coursemap.get(prereq) is None:
-                    print("Error: Prereq '{}_{}' required by '{}_{}' not found in study plan.".format(
-                          prereq[CourseCode.SUBJECT], prereq[CourseCode.CODE], course.subject, course.code), file=sys.stderr)
-                    sys.exit(1)
+                    self.__errors.append("Prerequisite '{} {}' required by '{}' not found in study plan.".format(
+                        prereq[CourseCode.SUBJECT], prereq[CourseCode.CODE], course.fmt))
+                    self.__has_errors = True
                 else:
                     course_prereqs.append(self.__coursemap[prereq])
-            self.__prereqs_array.append(course_prereqs)
+
+            for corereq in course.coreqs:
+                if self.__coursemap.get(corereq) is None:
+                    self.__errors.append("Corequisite '{} {}' required by '{}' not found in study plan.".format(
+                        corereq[CourseCode.SUBJECT], corereq[CourseCode.CODE], course.fmt))
+                    self.__has_errors = True
+                else:
+                    course_coreqs.append(self.__coursemap[corereq])
+
+            self.__prereqs.append(course_prereqs)
+            self.__coreqs.append(course_coreqs)
+
+    def __validate(self) -> None:
+        for course in self.__course:
+            if course.completed:
+                for prereq in course.prereqs:
+                    if not self.__coursemap[prereq].completed:
+                        self.__errors.append("Course '{}' marked as completed, but prerequisite '{} {}' is not.".format(
+                            course.fmt, prereq[CourseCode.SUBJECT], prereq[CourseCode.CODE]))
+                        self.__has_errors = True
+                for corereq in course.coreqs:
+                    if not self.__coursemap[corereq].completed:
+                        self.__warnings.append("Course '{}' marked as completed, but corequisite '{} {}' is not.".format(
+                            course.fmt, corereq[CourseCode.SUBJECT], corereq[CourseCode.CODE]))
+
+        if self.__has_errors:
+            self.__print_errors()
+            sys.exit(1)
+
+    def __print_errors(self) -> None:
+        len(self.__errors) > 0 and print(
+            "Error(s) found:", file=sys.stderr)
+        for error in self.__errors:
+            print('\t', error, file=sys.stderr)
+
+        len(self.__warnings) > 0 and print(
+            "\nWarning(s) found:", file=sys.stderr)
+        for warning in self.__warnings:
+            print('\t', warning, file=sys.stderr)
 
     @property
     def prereqs(self) -> list[list[Course]]:
-        return self.__prereqs_array
+        return self.__prereqs
+
+    @property
+    def coreqs(self) -> list[list[Course]]:
+        return self.__coreqs
 
     @property
     def courses(self) -> list[Course]:
-        return self.__course_array
+        return self.__course
 
 # ----------------------------------------------------------------------------------------------
 
@@ -90,9 +147,10 @@ class Fields(IntEnum):
     NAME = 2
     CREDITS = 3
     PREREQS = 4
-    REQUIRED = 5
-    NOTES = 6
-    COMPLETED = 7
+    COREQS = 5
+    REQUIRED = 6
+    NOTES = 7
+    COMPLETED = 8
 
 
 class CourseCode(IntEnum):
@@ -118,31 +176,38 @@ def course_from_csv(row: list[str]) -> Course:
     code = row[Fields.CODE]
     name = row[Fields.NAME]
 
-    if (subject == '' or code == '' or name == '' or row_len < len(Fields)):
+    if (subject.strip() == '' or code.strip() == '' or name.strip() == '' or row_len < len(Fields)):
         print("Error: Invalid course entry: {}".format(row), file=sys.stderr)
         sys.exit(1)
 
-    credits = int(row[Fields.CREDITS])
+    credits = row[Fields.CREDITS].strip() != '' and int(
+        row[Fields.CREDITS]) or 3
 
     prereqs_map: list[str] = list(
         map(lambda x: x.strip(), row[Fields.PREREQS].split(',')))
-    prereqs: list[tuple[str, str]] = len(prereqs_map) > 0 and prereqs_map[0] != '' and list(map(lambda s: (
+    prereqs: list[tuple[str, str]] = len(prereqs_map) > 0 and prereqs_map[0].strip() != '' and list(map(lambda s: (
         (s.split(' ')[CourseCode.SUBJECT].strip(), s.split(' ')[CourseCode.CODE].strip())), prereqs_map)) or []
 
-    required = row[Fields.REQUIRED] == 'Y'
+    coreqs_map: list[str] = list(
+        map(lambda x: x.strip(), row[Fields.COREQS].split(',')))
+    coreqs: list[tuple[str, str]] = len(coreqs_map) > 0 and coreqs_map[0].strip() != '' and list(map(lambda s: (
+        (s.split(' ')[CourseCode.SUBJECT].strip(), s.split(' ')[CourseCode.CODE].strip())), coreqs_map)) or []
+
+    required = not (row[Fields.REQUIRED] ==
+                    'N' and row[Fields.REQUIRED].strip() != '')
     notes = row[Fields.NOTES]
     completed = row[Fields.COMPLETED] == 'Y'
 
     return Course(subject, code, name,
-                  credits, prereqs, required, notes, completed)
+                  credits, prereqs, coreqs, required, notes, completed)
 
 
 def course_gen(file: str) -> Course:
     with open(file, 'r') as f:
         reader = csv.reader(f)
         for row in reader:
-            # Skip the header row
-            if row[0] == 'Subject':
+            # Skip the header row and  any empty rows
+            if row[0] == 'Subject' or row[0] == '' or row[0].startswith('//'):
                 continue
             yield course_from_csv(row)
 
@@ -175,22 +240,22 @@ net.heading = heading
 
 for i, course in enumerate(plan.courses):
     group: str
-    if course.required and len(course.prereqs) > 0:
-        group = legend[Legend.REQUIRED_WITH_PREREQS]
-    elif course.required:
-        group = legend[Legend.REQUIRED_WITHOUT_PREREQS]
-    else:
-        group = legend[Legend.ELECTIVE]
-
     if course.completed:
         group = legend[Legend.COMPLETED]
+    elif course.required:
+        if len(course.prereqs) > 0:
+            group = legend[Legend.REQUIRED_WITH_PREREQS]
+        else:
+            group = legend[Legend.REQUIRED_WITHOUT_PREREQS]
+    else:
+        group = legend[Legend.ELECTIVE]
 
     G.add_node(course.fmt, label=course.fmt,
                title=str(course), value=course.credits, group=group)
 
     for prereq in plan.prereqs[i]:
-        id = '{} -> {}'.format(prereq.fmt, course.fmt)
-        G.add_edge(prereq.fmt, course.fmt, id=id)
+        # id = '{} -> {}'.format(prereq.fmt, course.fmt)
+        G.add_edge(prereq.fmt, course.fmt)
 
 
 # Add Legend Nodes
