@@ -180,9 +180,9 @@ static void expressionStatement() {
 }
 
 static void printStatement() {
-  if (!check(TOKEN_LEFT_PAREN))
-    errorAtCurrent("Expected '(' after print statement.");
+  consume(TOKEN_LEFT_PAREN, "Expect '(' after print statement.");
   expression();
+  consume(TOKEN_RIGHT_PAREN, "Expect ')' after expression in print statement.");
   consume(TOKEN_SEMICOLON, "Expect ';' after value.");
   emitByte(OP_PRINT);
 }
