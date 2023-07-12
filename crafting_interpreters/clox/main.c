@@ -41,6 +41,10 @@ static void repl() {
       break;
     }
 
+    if (strncmp(line, "exit", 4) == 0) {
+      break;
+    }
+
     interpret(line);
   }
 }
