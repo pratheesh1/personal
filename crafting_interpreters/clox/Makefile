@@ -17,7 +17,7 @@ $(shell mkdir -p bin)
 
 # Define make rules
 $(EXEC): $(OBJ)
-	$(CC) $(CFLAGS) $(OBJ) -o $(EXEC)
+	$(CC) $(CFLAGS) $(OBJ) -o $(EXEC) && rm $(OBJ)
 
 bin/%.o: %.c $(HDR)
 	$(CC) $(CFLAGS) -c $< -o $@
