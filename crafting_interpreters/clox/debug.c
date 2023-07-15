@@ -11,7 +11,9 @@ static int jumpInstruction(const char *name, int sign, Chunk *chunk,
 static int constantInstruction(const char *name, Chunk *chunk, int offset);
 // -----------------------------------------
 
-void disassembleChunk(Chunk *chunk) {
+void disassembleChunk(Chunk *chunk, const char *name) {
+  printf("== %s ==\n", name);
+
   for (int offset = 0; offset < chunk->count;) {
     offset = disassembleInstruction(chunk, offset);
   }
