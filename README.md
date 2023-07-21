@@ -31,3 +31,10 @@ Things I've done and currently doing for fun and to kill time. I procrastinate a
    | Started | Completed | Language | Status | Notes |
    | ------- | --------- | -------- | ------ | ----- |
    | 2023-Jun | 2023-Jun |Python | 🎉 Completed | - |
+
+5. Leetcode
+
+   Doing random questions because I like to be in pain.
+   | Started | Completed | Language | Status | Notes |
+   | ------- | --------- | -------- | ------ | ----- |
+   | 2023-Jul |- | Whatever I'm in the mood for | We'll never get there | I have no plan to see this through |
